@@ -1,0 +1,76 @@
+SKAPE UPLOAD NOTES — Filesystem MCP Agent
+==========================================
+Source: openai/openai-agents-python -> examples/mcp/filesystem_example
+Verified locally with: Python 3.13, Node 25, openai-agents==0.18.0
+(Model call NOT run end-to-end — skipped to avoid OpenAI spend. MCP server
+connection WAS verified working; only the paid model step is unverified.)
+
+
+WHAT TO UPLOAD
+--------------
+Everything in this zip:
+  main.py              - entrypoint. Run with:  python main.py
+  requirements.txt     - Python deps (openai-agents==0.18.0)
+  sample_files/        - data the agent reads (favorite_books.txt,
+                         favorite_cities.txt, favorite_songs.txt).
+                         REQUIRED — the agent has nothing to list/read without them.
+                         Keep them next to main.py (paths are derived from __file__).
+  SKAPE_UPLOAD_NOTES.txt - this file.
+
+Do NOT upload: any .venv/ directory, any .env file, or the API key.
+
+
+RUNTIME REQUIRED (this is a Python + Node package)
+--------------------------------------------------
+1. Python 3.10+  ->  pip install -r requirements.txt
+2. Node.js (provides `npx`)  ->  the MCP filesystem server runs via npx.
+   main.py exits with a clear error if npx is not on PATH.
+
+Recommended build/setup step (prevents the cold-start timeout, see flags below):
+   npm install -g @modelcontextprotocol/server-filesystem
+
+
+ENVIRONMENT VARIABLES TO SET
+----------------------------
+  OPENAI_API_KEY   (required, secret)  - must belong to a FUNDED project.
+                                         A 429 insufficient_quota means the key
+                                         is valid but the account has no credits.
+  OPENAI_AGENTS_DISABLE_TRACING=1  (optional) - stops the SDK from POSTing
+                                         traces to OpenAI on each run. Harmless
+                                         either way; set it to reduce egress/noise.
+
+
+SANDBOX FLAGS TO WATCH (E2B / isolated VM)
+------------------------------------------
+1. NODE.JS MAY BE ABSENT. A bare template often ships Python only. Without
+   Node/npx, main.py fails fast with a clear error. Use a template that
+   includes Node, or install it in setup (apt-get install -y nodejs npm).
+
+2. COLD npx TIMEOUT (most common failure). On a fresh sandbox the first
+   `npx -y @modelcontextprotocol/server-filesystem` downloads the package,
+   which exceeds the SDK's default 5s MCP init deadline and kills the handshake.
+   Mitigations, already partly applied:
+     - main.py now sets client_session_timeout_seconds=30 (code fix, done).
+     - ALSO pre-install at build time: npm install -g @modelcontextprotocol/server-filesystem
+       (makes the server launch instantly and removes the runtime npm download).
+
+3. NETWORK EGRESS. Two outbound destinations are needed:
+     - api.openai.com            (the model call — always required)
+     - registry.npmjs.org        (to fetch the MCP server — NOT needed at runtime
+                                  if you pre-install the package per flag #2)
+   If egress is locked down, main.py prints a clear network-error message.
+
+4. FILESYSTEM SCOPE. The server is sandboxed to the sample_files/ directory,
+   resolved relative to main.py (no hardcoded absolute paths) — portable across
+   sandboxes as long as sample_files/ ships alongside main.py.
+
+5. NON-INTERACTIVE. main.py runs three prompts and exits; no stdin/TTY needed,
+   so it is safe for headless execution.
+
+
+HARDENING ALREADY APPLIED TO main.py
+------------------------------------
+  - client_session_timeout_seconds=30 on MCPServerStdio (cold-start fix).
+  - Startup checks for npx and OPENAI_API_KEY with actionable messages.
+  - Clean, non-traceback handling for 401 (auth), 429 (quota), and network/egress
+    errors, each exiting with a one-line explanation instead of a stack dump.
