@@ -1,4 +1,4 @@
-SKAPE UPLOAD NOTES — Filesystem MCP Agent
+STEALTH STARTUP UPLOAD NOTES — Filesystem MCP Agent
 ==========================================
 Source: openai/openai-agents-python -> examples/mcp/filesystem_example
 Verified locally with: Python 3.13, Node 25, openai-agents==0.18.0
@@ -15,7 +15,7 @@ Everything in this zip:
                          favorite_cities.txt, favorite_songs.txt).
                          REQUIRED — the agent has nothing to list/read without them.
                          Keep them next to main.py (paths are derived from __file__).
-  SKAPE_UPLOAD_NOTES.txt - this file.
+  STEALTH_STARTUP_UPLOAD_NOTES.txt - this file.
 
 Do NOT upload: any .venv/ directory, any .env file, or the API key.
 

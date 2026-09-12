@@ -1,6 +1,6 @@
-# Skape filesystem agent
+# Stealth Startup filesystem agent
 
-The first working reference agent I built and published for Skape, the AI agent marketplace from Securili. It is an OpenAI Agents SDK assistant that reads local files through the Model Context Protocol (MCP) filesystem server, packaged so that it runs cleanly inside a sandboxed marketplace deployment.
+The first working reference agent I built and published for Stealth Startup, an AI agent marketplace. It is an OpenAI Agents SDK assistant that reads local files through the Model Context Protocol (MCP) filesystem server, packaged so that it runs cleanly inside a sandboxed marketplace deployment.
 
 ## What it does
 
@@ -20,7 +20,7 @@ The agent logic starts from the `filesystem_example` in `openai/openai-agents-py
 - startup checks for `npx` on PATH and for `OPENAI_API_KEY`, each exiting with a one line message;
 - clean handling of 401 (rejected key), 429 (no quota), and network egress failures instead of tracebacks, so an orchestrator sees a single explanatory line.
 
-`SKAPE_UPLOAD_NOTES.txt` records what to upload, the runtime and environment variables, and the sandbox flags to watch: Node absent from the template, the cold `npx` timeout, the two egress destinations, the filesystem scope, and the non-interactive run.
+`STEALTH_STARTUP_UPLOAD_NOTES.txt` records what to upload, the runtime and environment variables, and the sandbox flags to watch: Node absent from the template, the cold `npx` timeout, the two egress destinations, the filesystem scope, and the non-interactive run.
 
 ## How it was verified
 
